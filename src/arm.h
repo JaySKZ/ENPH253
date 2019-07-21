@@ -2,19 +2,19 @@
 #include <Arduino.h>
 
 //Switch Pins
-#define LIFT_TOP_SW
-#define LIFT_BOT_SW
-#define SLIDE_FRONT_SW
-#define SLIDE_BACK_SW
-#define ARM_HOME_SW
+#define LIFT_TOP_SW A16
+#define LIFT_BOT_SW A16
+#define SLIDE_FRONT_SW A16
+#define SLIDE_BACK_SW A16
+#define ARM_HOME_SW A16
 
 //Motor Pins
-#define SLIDE_STEP
-#define SLIDE_DIR
-#define LIFT_STEP
-#define LIFT_DIR
-#define ARM_STEP
-#define ARM_DIR
+#define SLIDE_STEP A16
+#define SLIDE_DIR A16
+#define LIFT_STEP A16
+#define LIFT_DIR A16
+#define ARM_STEP A16
+#define ARM_DIR A16
 
 
 class arm
@@ -30,6 +30,6 @@ class arm
     void lowerClaw(void);
     void extendSlider(void);
     void homeSlider(void);
-    void homeArmRotate(void);
+    void homeRotateArm(void);
 
 };

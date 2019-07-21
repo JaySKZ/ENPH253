@@ -25,5 +25,5 @@ class movement
     void turnAround(void);
     void checkSonars(void);
     void alignGauntlet(void);
-    void killMotors(void);
+    void killDriveMotors(void);
 };
