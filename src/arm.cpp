@@ -5,7 +5,13 @@
 Arm.cpp contains all functions related to moving the arm including collection, dispensing, and other movement.
 */
 
-
+/*
+* Constructer for the arm object
+*/
+arm::arm(uint8_t* SPI1, uint8_t* SPI2) {
+  SPIdata1 = SPI1;
+  SPIdata2 = SPI2;
+}
 
 /*
 * Homes all the components of the arm: lift,slider,claw, and rotates it to home.
@@ -21,7 +27,8 @@ homeSlider();
 * Extends all components of the arm: lift,slider,claw, and rotation
 */
 void arm::extendArm(void) {
-
+  raiseClaw();
+  extendSlider();
 }
 
 /*
@@ -43,8 +50,8 @@ void arm::collectStone(void) {
 * Raises the claw to the highest position
 */
 void arm::raiseClaw(void) {
-  while(digitalRead(LIFT_TOP_SW)==LOW) {
-    analogWrite(LIFT_DIR, 255);
+  analogWrite(LIFT_DIR, UP);
+  while(*SPIdata1 & (pow(2,LIFT_TOP_BI) == 0)) {
     analogWrite(LIFT_STEP, 255);
   }
   analogWrite(LIFT_STEP, 0);
@@ -55,8 +62,8 @@ void arm::raiseClaw(void) {
 */
 
 void arm::lowerClaw(void) {
-  while(digitalRead(LIFT_BOT_SW)==LOW) {
-    analogWrite(LIFT_DIR,0);
+  analogWrite(LIFT_DIR,DOWN);
+  while(*SPIdata1 & (pow(2,LIFT_BOT_BI) == 0)) {
     analogWrite(LIFT_STEP,255);
   }
   analogWrite(LIFT_STEP,0);
@@ -66,18 +73,32 @@ void arm::lowerClaw(void) {
 * Extends the slider of the arm fully
 */
 void arm::extendSlider(void) {
-
+  analogWrite(SLIDE_DIR,FORWARDS);
+  while(*SPIdata1 & (pow(2,SLIDE_FRONT_BI) == 0)) {
+    analogWrite(SLIDE_STEP, 255);
+  }
+  analogWrite(LIFT_STEP,0);
 }
 /*
 * Retracts the slider of the arm fully
 */
 void arm::homeSlider(void){
-
+  analogWrite(SLIDE_DIR,BACKWARDS);
+  while(*SPIdata1 & (pow(2,SLIDE_BACK_BI) == 0)) {
+    analogWrite(SLIDE_STEP,255);
+  }
+  analogWrite(LIFT_STEP,0);
 }
 
 /*
-* Rotates the arm to it's home position
+* Rotates the arm to it's home position. Pass true for clockwise and false for CCW
 */
-void arm::homeRotateArm(void){
+void arm::homeRotateArm(bool direction){
+  if(direction == true) {analogWrite(SLIDE_DIR,CW);}
+  else {analogWrite(SLIDE_DIR,CCW);}
 
+  while(*SPIdata1 & (pow(2,ARM_HOME_BI) == 0)) {
+    analogWrite(ARM_STEP,255);
+  }
+  analogWrite(ARM_STEP,0);
 }
