@@ -18,7 +18,7 @@ arm::arm(uint8_t* SPI1, uint8_t* SPI2) {
 * Home is defined as the claw as being at the bottom of the lift, the slider retracted fully, and the arm rotated forwards
 */
 void arm::homeArm(void) {
-lowerClaw();
+homeClaw();
 homeSlider();
 
 }
@@ -58,10 +58,16 @@ void arm::raiseClaw(void) {
 }
 
 /*
-*  Lowers the claw to the lowest point or until it hits a stone
+* Lowers the claw until it hits a pole or hits the bottom
 */
-
 void arm::lowerClaw(void) {
+  
+}
+
+/*
+*  Lowers the claw to the lowest point
+*/
+void arm::homeClaw(void) {
   digitalWrite(LIFT_DIR,DOWN);
   while(!(*SPIdata1 & ((int)pow(2,LIFT_BOT_BIT)))) {
     analogWrite(LIFT_STEP,255);
@@ -79,15 +85,12 @@ void arm::extendSlider(void) {
   }
   analogWrite(LIFT_STEP,0);
 }
+
 /*
 * Retracts the slider of the arm fully
 */
 void arm::homeSlider(void){
   digitalWrite(SLIDE_DIR,BACKWARDS);
-  Serial.println("yeet");
-  Serial.println(pow(2,SLIDE_BACK_BIT));
-  Serial.println(*SPIdata1);
-  Serial.println(*SPIdata1 & ((int)pow(2,SLIDE_BACK_BIT)));
 
   while(!(*SPIdata1 & ((int)pow(2,SLIDE_BACK_BIT)))) {
     analogWrite(SLIDE_STEP,255);

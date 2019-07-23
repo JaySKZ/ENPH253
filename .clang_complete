@@ -1,7 +1,9 @@
 -IC:\Users\andyp\OneDrive\Documents\PlatformIO\Projects\253 Robot\include
 -IC:\Users\andyp\OneDrive\Documents\PlatformIO\Projects\253 Robot\src
+-IC:\Users\andyp\OneDrive\Documents\PlatformIO\Projects\253 Robot\lib\StepperDriver-master\src
 -IC:\Users\andyp\.platformio\packages\framework-arduinoteensy\libraries\SPI
 -IC:\Users\andyp\.platformio\packages\framework-arduinoteensy\cores\teensy3
+-IC:\Users\andyp\OneDrive\Documents\PlatformIO\Projects\253 Robot\lib\SparkFun_Line_Follower_Array_Arduino_Library-master\src
 -IC:\Users\andyp\.platformio\lib\Adafruit GFX Library_ID13
 -IC:\Users\andyp\.platformio\lib\Adafruit SSD1306_ID135
 -IC:\Users\andyp\.platformio\packages\framework-arduinoteensy\libraries\ADC
