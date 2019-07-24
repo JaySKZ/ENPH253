@@ -20,6 +20,9 @@
   #define SLIDE_FRONT_BIT 2
   #define SLIDE_BACK_BIT 1
   #define ARM_HOME_BIT 4
+  #define CLAW_COLLIDE_BIT 5
+  #define HOOK_COLLIDE_BIT 6
+  #define ARM_COLLIDE_BIT 7
 
   //Directions
   #define UP LOW

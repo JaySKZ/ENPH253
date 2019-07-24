@@ -16,8 +16,10 @@ class arm
     void lowerClaw(void);
     void homeClaw(void);
     void extendSlider(void);
+    void retractSlider(void);
     void homeSlider(void);
     void homeRotateArm(bool direction);
+    void poleRotateArm(void);
 
     private:
     uint8_t *SPIdata1;

@@ -6,7 +6,7 @@ Arm.cpp contains all functions related to moving the arm including collection, d
 */
 
 /*
-* Constructer for the arm object
+* Constructer for the arm object. SPI1 and SPI2 are the pointers to our limit switch data
 */
 arm::arm(uint8_t* SPI1, uint8_t* SPI2) {
   SPIdata1 = SPI1;
@@ -20,7 +20,7 @@ arm::arm(uint8_t* SPI1, uint8_t* SPI2) {
 void arm::homeArm(void) {
 homeClaw();
 homeSlider();
-
+homeRotateArm(false);
 }
 
 /*
@@ -42,7 +42,14 @@ void arm::dispenseStones(void) {
 * Collects a stone and places it into the dispenser once the robot has parked beside it
 */
 void arm::collectStone(void) {
-
+  extendArm();
+  poleRotateArm();
+  retractSlider();
+  lowerClaw();
+  //grabClaw();
+  raiseClaw();
+  homeRotateArm(CW);
+  homeSlider();
 }
 
 
@@ -50,8 +57,8 @@ void arm::collectStone(void) {
 * Raises the claw to the highest position
 */
 void arm::raiseClaw(void) {
-  analogWrite(LIFT_DIR, UP);
-  while(*SPIdata1 & (pow(2,LIFT_TOP_BIT) == 0)) {
+  digitalWrite(LIFT_DIR, UP);
+  while((*SPIdata1 & ((int)pow(2,LIFT_TOP_BIT)) == 0)) {
     analogWrite(LIFT_STEP, 255);
   }
   analogWrite(LIFT_STEP, 0);
@@ -61,7 +68,11 @@ void arm::raiseClaw(void) {
 * Lowers the claw until it hits a pole or hits the bottom
 */
 void arm::lowerClaw(void) {
-  
+  digitalWrite(LIFT_DIR,DOWN);
+  while(((*SPIdata1 & (int)pow(2,CLAW_COLLIDE_BIT)) == 0) || ((*SPIdata1 & (int)pow(2,LIFT_BOT_BIT)) == 0)) {
+    analogWrite(LIFT_STEP, 255);
+  }
+  analogWrite(LIFT_STEP,0);
 }
 
 /*
@@ -69,7 +80,7 @@ void arm::lowerClaw(void) {
 */
 void arm::homeClaw(void) {
   digitalWrite(LIFT_DIR,DOWN);
-  while(!(*SPIdata1 & ((int)pow(2,LIFT_BOT_BIT)))) {
+  while((*SPIdata1 & ((int)pow(2,LIFT_BOT_BIT)) == 0)) {
     analogWrite(LIFT_STEP,255);
   }
   analogWrite(LIFT_STEP,LOW);
@@ -79,8 +90,8 @@ void arm::homeClaw(void) {
 * Extends the slider of the arm fully
 */
 void arm::extendSlider(void) {
-  analogWrite(SLIDE_DIR,FORWARDS);
-  while(*SPIdata1 & (pow(2,SLIDE_FRONT_BIT) == 0)) {
+  digitalWrite(SLIDE_DIR,FORWARDS);
+  while((*SPIdata1 & ((int)pow(2,SLIDE_FRONT_BIT)) == 0)) {
     analogWrite(SLIDE_STEP, 255);
   }
   analogWrite(LIFT_STEP,0);
@@ -91,8 +102,18 @@ void arm::extendSlider(void) {
 */
 void arm::homeSlider(void){
   digitalWrite(SLIDE_DIR,BACKWARDS);
+  while((*SPIdata1 & ((int)pow(2,SLIDE_BACK_BIT))) == 0) {
+    analogWrite(SLIDE_STEP,255);
+  }
+  analogWrite(SLIDE_STEP,0);
+}
 
-  while(!(*SPIdata1 & ((int)pow(2,SLIDE_BACK_BIT)))) {
+/*
+* Retracts the slider until it collides with a pole or comes home
+*/
+void arm::retractSlider(void){
+  digitalWrite(SLIDE_DIR,BACKWARDS);
+  while(((*SPIdata1 & (int)pow(2,HOOK_COLLIDE_BIT)) == 0) || ((*SPIdata1 & (int)pow(2,SLIDE_BACK_BIT)) == 0)) {
     analogWrite(SLIDE_STEP,255);
   }
   analogWrite(SLIDE_STEP,0);
@@ -102,11 +123,22 @@ void arm::homeSlider(void){
 * Rotates the arm to it's home position. Pass true for clockwise and false for CCW
 */
 void arm::homeRotateArm(bool direction){
-  if(direction == true) {analogWrite(SLIDE_DIR,CW);}
-  else {analogWrite(SLIDE_DIR,CCW);}
+  if(direction == true) {digitalWrite(ARM_DIR,CW);}
+  else {digitalWrite(ARM_DIR,CCW);}
 
-  while(*SPIdata1 & (pow(2,ARM_HOME_BIT) == 0)) {
+  while((*SPIdata1 & ((int)pow(2,ARM_HOME_BIT)) == 0)) {
     analogWrite(ARM_STEP,255);
   }
   analogWrite(ARM_STEP,0);
+}
+
+/*
+* Rotates the arm until it either collides with a pole or reaches home
+*/
+void arm::poleRotateArm(void) {
+  digitalWrite(ARM_DIR,CCW);
+  while(((*SPIdata1 & (int)pow(2,ARM_COLLIDE_BIT)) == 0) || ((*SPIdata1 & (int)pow(2,ARM_HOME_BIT)) == 0)) {
+    analogWrite(ARM_STEP,HIGH);
+  }
+  analogWrite(ARM_STEP,LOW);
 }
