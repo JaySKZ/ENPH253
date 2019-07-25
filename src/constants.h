@@ -48,6 +48,7 @@ namespace constants {
   const int CLAW_STONE3 = 0;
   const int CLAW_OPEN_DEG = 0;
   const int CLAW_CLOSE_DEG = 0;
+  const int DISPENSER_POSITION = 0;
 
   //End of belt distances
   const int SLIDER_FRONT_POSITION = 0;
@@ -55,6 +56,7 @@ namespace constants {
 
   //Misc
   const int SPI_TIMING = 1000; //microseconds
+  const int DESIRED_STONES = 3;
 
   //Tuning Paramaters
   const int kp = 0.57;

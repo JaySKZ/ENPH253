@@ -5,6 +5,7 @@
 class movement
 {
     public:
+    movement(int *stonesBehind);
     void drive(void);
 
 

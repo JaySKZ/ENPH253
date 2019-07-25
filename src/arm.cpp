@@ -19,6 +19,8 @@ A4988 armStepper(200, SLIDER_DIR, ARM_STEP);
 A4988 liftStepper(200, LIFT_DIR, LIFT_STEP);
 Servo clawOpenServo;
 Servo clawRotateServo;
+Servo dispenserServo;
+
 
 /*
 * Constructer for the arm object. SPI1 and SPI2 are the pointers to our limit switch data
@@ -32,19 +34,23 @@ arm::arm(uint8_t* SPI1, uint8_t* SPI2) {
 
   clawOpenServo.attach(CLAW_OPEN_PIN);
   clawRotateServo.attach(CLAW_ROTATE_PIN);
+  dispenserServo.attach(DISPENSE_PIN);
   sliderStepper.begin(300,1);
   armStepper.begin(300,1);
   liftStepper.begin(300,1);
 }
 
+
 /*
-* Homes the larger components of the arm: the slider and rotates it CW to home.
+* Homes the larger components of the arm: the slider,lower the lifts and rotates it CW to home.
 * Home is defined as the claw as being at the bottom of the lift, the slider retracted fully, and the arm rotated forwards
 */
 void arm::homeArm(void) {
 homeRotateArm(true);
 homeSlider();
+homeClaw();
 }
+
 
 /*
 * Extends the slider and lifts the claw/lift
@@ -53,6 +59,7 @@ void arm::extendArm(void) {
   raiseClaw();
   extendSlider();
 }
+
 
 /*
 * Moves the lift to a desired position
@@ -63,6 +70,7 @@ void arm::moveLift(int position) {
   liftPosition = position;
 }
 
+
 /*
 * Moves the slider to a desired position
 * Parameters: position (0-idk)
@@ -71,6 +79,7 @@ void arm::moveSlider(int position) {
   sliderStepper.move(position - sliderPosition);
   sliderPosition = position;
 }
+
 
 /*
 * Moves the arm to a desired position
@@ -81,12 +90,14 @@ void arm::moveArm(int position) {
   armPosition = position;
 }
 
+
 /*
 * Dispenses all the stones into the gauntlet once already lined up
 */
 void arm::dispenseStones(void) {
-  //TODO
+  dispenserServo.write(DISPENSER_POSITION);
 }
+
 
 /*
 * Collects a stone and places it into the dispenser once the robot has parked beside it
@@ -103,6 +114,7 @@ void arm::collectStone(int stoneNumber) {
   storeStone(stoneNumber);
   homeArm();
 }
+
 
 /*
 * Homes arm then stores stone from claw to a spot on the flipper.
@@ -143,6 +155,7 @@ void arm::raiseClaw(void) {
   moveLift(LIFT_TOP_POSITION);
 }
 
+
 /*
 * Lowers the claw until it hits a pole or hits the bottom
 */
@@ -152,6 +165,7 @@ void arm::lowerClaw(void) {
     liftPosition--;
   }
 }
+
 
 /*
 *  Lowers the claw to the lowest point
@@ -165,12 +179,14 @@ void arm::homeClaw(void) {
   liftPosition = 0;
 }
 
+
 /*
 * Opens the claw
 */
 void arm::openClaw(){
   clawOpenServo.write(CLAW_OPEN_DEG);
 }
+
 
 /*
 * Closes the claw
@@ -179,12 +195,14 @@ void arm::closeClaw(){
   clawOpenServo.write(CLAW_CLOSE_DEG);
 }
 
+
 /*
 * Extends the slider of the arm fully
 */
 void arm::extendSlider(void) {
   moveSlider(SLIDER_FRONT_POSITION);
 }
+
 
 /*
 * Retracts the slider of the arm fully
@@ -198,6 +216,7 @@ void arm::homeSlider(void){
   sliderPosition = 0;
 }
 
+
 /*
 * Retracts the slider until it collides with a pole or comes home
 */
@@ -207,6 +226,7 @@ void arm::retractSlider(void){
     sliderPosition--;
   }
 }
+
 
 /*
 * Rotates the arm to it's home position.
@@ -222,6 +242,7 @@ void arm::homeRotateArm(bool direction){
    analogWrite(ARM_STEP,0);
    armPosition = 0;
 }
+
 
 /*
 * Rotates the arm until it either collides with a pole or reaches home

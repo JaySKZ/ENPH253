@@ -9,6 +9,10 @@ This file needs a lot of thought and redesigning as we test things and make desi
 Feel free to change
 */
 
+movement::movement(int *stonesBehind) {
+
+}
+
 /*
 * Drives the robot forwards throughout the course and makes turns itself
 */

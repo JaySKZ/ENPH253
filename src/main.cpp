@@ -2,22 +2,25 @@
 #include <movement.h>
 #include <arm.h>
 #include <SPI.h> //Serial communication
-#include <bitset> //For converting integers to binary
-#include <A4988.h> //Stepper driver libary
 #include <constants.h>
 
 //State Variables
 IntervalTimer myTimer;
 uint8_t SPIdata1;
 uint8_t SPIdata2;
+enum State {Drive,Collection,Dispense,Done};
+State state;
+int stonesBehind;
 //Objects
 arm robotarm (&SPIdata1, &SPIdata2);
-movement robotmovement;
+movement robotmovement(&stonesBehind);
 //Function Declarations
 void updateSPI();
 void initializePins();
 
 void setup() {
+  state = Drive;
+  stonesBehind = 0;
   //Initiate Processes
   Serial.begin(9600);
 
@@ -32,6 +35,34 @@ void setup() {
 }
 
 void loop() {
+  switch(state) {
+    case Drive:
+      while(stonesBehind != constants::DESIRED_STONES) {
+      //drive();
+    }
+      if(stonesBehind == constants::DESIRED_STONES) {
+        state = Collection;
+      }
+      break;
+
+    case Collection:
+      robotarm.collectStone(constants::DESIRED_STONES-stonesBehind);
+    //  drive();
+      if(stonesBehind == 0) {
+        state = Dispense;
+      }
+      break;
+
+    case Dispense:
+    //  drive();
+      robotarm.dispenseStones();
+      break;
+
+    case Done:
+      //killMotors();
+      //celebration();
+      break;
+  }
 }
 
 /*
@@ -50,6 +81,7 @@ void updateSPI() {
 }
 
 void initializePins() {
+  //TODO
   pinMode(3,OUTPUT);
   digitalWrite(3,LOW);
   pinMode(5,OUTPUT);
