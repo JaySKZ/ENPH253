@@ -1,5 +1,7 @@
 #include <movement.h>
 
+using namespace constants;
+
 /*
 Drive.cpp contains all the functions related to movement of the robot through the drive motors.
 

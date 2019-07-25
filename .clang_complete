@@ -1,5 +1,6 @@
 -IC:\Users\andyp\OneDrive\Documents\PlatformIO\Projects\253 Robot\include
 -IC:\Users\andyp\OneDrive\Documents\PlatformIO\Projects\253 Robot\src
+-IC:\Users\andyp\.platformio\packages\framework-arduinoteensy\libraries\Servo
 -IC:\Users\andyp\OneDrive\Documents\PlatformIO\Projects\253 Robot\lib\StepperDriver-master\src
 -IC:\Users\andyp\.platformio\packages\framework-arduinoteensy\libraries\SPI
 -IC:\Users\andyp\.platformio\packages\framework-arduinoteensy\cores\teensy3
@@ -78,7 +79,6 @@
 -IC:\Users\andyp\.platformio\packages\framework-arduinoteensy\libraries\ST7565
 -IC:\Users\andyp\.platformio\packages\framework-arduinoteensy\libraries\ST7735_t3
 -IC:\Users\andyp\.platformio\packages\framework-arduinoteensy\libraries\SerialFlash
--IC:\Users\andyp\.platformio\packages\framework-arduinoteensy\libraries\Servo
 -IC:\Users\andyp\.platformio\packages\framework-arduinoteensy\libraries\ShiftPWM
 -IC:\Users\andyp\.platformio\packages\framework-arduinoteensy\libraries\Snooze
 -IC:\Users\andyp\.platformio\packages\framework-arduinoteensy\libraries\Snooze\utility

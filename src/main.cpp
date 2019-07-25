@@ -13,8 +13,6 @@ uint8_t SPIdata2;
 //Objects
 arm robotarm (&SPIdata1, &SPIdata2);
 movement robotmovement;
-A4988 liftStepper (200,3,4);
-
 //Function Declarations
 void updateSPI();
 void initializePins();
@@ -22,15 +20,15 @@ void initializePins();
 void setup() {
   //Initiate Processes
   Serial.begin(9600);
-  liftStepper.begin(300,1);
 
   //SPI
   SPI.begin();
-  pinMode(LATCH, OUTPUT);
-  digitalWrite(LATCH, HIGH);
-  myTimer.begin(updateSPI, SPI_TIMING);
+  pinMode(constants::LATCH, OUTPUT);
+  digitalWrite(constants::LATCH, HIGH);
+  myTimer.begin(updateSPI, constants::SPI_TIMING);
 
   initializePins();
+  robotarm.homeArm();
 }
 
 void loop() {
@@ -42,8 +40,8 @@ void loop() {
 void updateSPI() {
   noInterrupts();
 
-  digitalWrite(LATCH,LOW);
-  digitalWrite(LATCH,HIGH);
+  digitalWrite(constants::LATCH,LOW);
+  digitalWrite(constants::LATCH,HIGH);
 
   SPIdata1 = SPI.transfer(0);
 //  SPIdata2 = SPI.transfer(0);
