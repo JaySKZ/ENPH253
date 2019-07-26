@@ -30,11 +30,43 @@ void setup() {
   digitalWrite(constants::LATCH, HIGH);
   myTimer.begin(updateSPI, constants::SPI_TIMING);
 
+  //robotarm.homeArm();
   initializePins();
-  robotarm.homeArm();
+
+  robotarm.collectStone(1);
 }
 
 void loop() {
+  /*
+  robotarm.homeClaw();
+  Serial.println(robotarm.getLiftPosition());
+  robotarm.moveLift(400);
+  Serial.println(robotarm.getLiftPosition());
+  delay(2000);
+  */
+  /*
+  Serial.printf("LIFT POSITION: ");
+  Serial.println(robotarm.getLiftPosition());
+  Serial.printf("ARM POSITION: ");
+  Serial.println(robotarm.getArmPosition());
+  Serial.printf("SLIDER POSITION: ");
+  Serial.println(robotarm.getSliderPosition());
+  delay(2000);
+  */
+  /*
+  Serial.printf("DATA1: ");
+  Serial.println(SPIdata1);
+  Serial.printf("\n");
+  Serial.printf("DATA2: ");
+  Serial.println(SPIdata2);
+  Serial.printf("\n");
+  delay(1000);
+*/
+
+
+
+
+/*
   switch(state) {
     case Drive:
       while(stonesBehind != constants::DESIRED_STONES) {
@@ -63,29 +95,35 @@ void loop() {
       //celebration();
       break;
   }
+  */
+
 }
 
 /*
 * Updates the digital data from the robots limit switches
 */
 void updateSPI() {
+
   noInterrupts();
 
   digitalWrite(constants::LATCH,LOW);
   digitalWrite(constants::LATCH,HIGH);
 
+  SPIdata2 = SPI.transfer(0);
   SPIdata1 = SPI.transfer(0);
-//  SPIdata2 = SPI.transfer(0);
 
   interrupts();
+
 }
 
 void initializePins() {
-  //TODO
-  pinMode(3,OUTPUT);
-  digitalWrite(3,LOW);
-  pinMode(5,OUTPUT);
-  digitalWrite(5,LOW);
-  analogWrite(4,0);
-  analogWrite(6,0);
+  pinMode(constants::LIFT_DIR,OUTPUT);
+  pinMode(constants::SLIDER_DIR,OUTPUT);
+  pinMode(constants::ARM_DIR,OUTPUT);
+  digitalWrite(constants::LIFT_DIR,LOW);
+  digitalWrite(constants::SLIDER_DIR,LOW);
+  digitalWrite(constants::ARM_DIR,LOW);
+  digitalWrite(constants::LIFT_STEP,LOW);
+  digitalWrite(constants::SLIDER_STEP,LOW);
+  digitalWrite(constants::ARM_STEP,LOW);
 }

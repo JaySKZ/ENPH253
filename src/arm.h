@@ -28,13 +28,17 @@ class arm
     void retractSlider(void);
     void homeSlider(void);
 
-    void homeRotateArm(bool direction);
+    void homeRotateArm(void);
     void poleRotateArm(void);
+
+    int getLiftPosition(void);
+    int getArmPosition(void);
+    int getSliderPosition(void);
 
     private:
     uint8_t *SPIdata1;
     uint8_t *SPIdata2;
-    int liftPosition;
-    int armPosition;
-    int sliderPosition;
+    int liftPosition; //Up is positive
+    int armPosition; //Forwards is negative
+    int sliderPosition; //CW is positive, CCW is negative
 };

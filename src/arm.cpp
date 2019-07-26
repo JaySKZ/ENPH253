@@ -15,7 +15,7 @@ using namespace constants;
 
 //Motor Objects
 A4988 sliderStepper(200, SLIDER_DIR, SLIDER_STEP);
-A4988 armStepper(200, SLIDER_DIR, ARM_STEP);
+A4988 armStepper(200, ARM_DIR, ARM_STEP);
 A4988 liftStepper(200, LIFT_DIR, LIFT_STEP);
 Servo clawOpenServo;
 Servo clawRotateServo;
@@ -25,7 +25,7 @@ Servo dispenserServo;
 /*
 * Constructer for the arm object. SPI1 and SPI2 are the pointers to our limit switch data
 */
-arm::arm(uint8_t* SPI1, uint8_t* SPI2) {
+arm::arm(uint8_t *SPI1, uint8_t *SPI2) {
   SPIdata1 = SPI1;
   SPIdata2 = SPI2;
   liftPosition = 0;
@@ -46,9 +46,9 @@ arm::arm(uint8_t* SPI1, uint8_t* SPI2) {
 * Home is defined as the claw as being at the bottom of the lift, the slider retracted fully, and the arm rotated forwards
 */
 void arm::homeArm(void) {
-homeRotateArm(true);
-homeSlider();
-homeClaw();
+  homeSlider();
+  homeRotateArm();
+  homeClaw();
 }
 
 
@@ -104,15 +104,13 @@ void arm::dispenseStones(void) {
 * Parameters: stoneNumber is the number of stones already stored (0-3)
 */
 void arm::collectStone(int stoneNumber) {
-  extendArm();
+  homeArm();
+  delay(1000);
+  moveArm(-180);
+  extendSlider();
   poleRotateArm();
   retractSlider();
-  lowerClaw();
-  closeClaw();
-  raiseClaw();
-  extendSlider();
-  storeStone(stoneNumber);
-  homeArm();
+  //lowerClaw();
 }
 
 
@@ -153,6 +151,7 @@ void arm::storeStone(int stoneNumber) {
 */
 void arm::raiseClaw(void) {
   moveLift(LIFT_TOP_POSITION);
+  liftPosition = LIFT_TOP_POSITION;
 }
 
 
@@ -160,9 +159,10 @@ void arm::raiseClaw(void) {
 * Lowers the claw until it hits a pole or hits the bottom
 */
 void arm::lowerClaw(void) {
-  while(((*SPIdata1 & (int)pow(2,CLAW_COLLIDE_BIT)) == 0) || ((*SPIdata1 & (int)pow(2,LIFT_BOT_BIT)) == 0)) {
-    liftStepper.move(-1);
-    liftPosition--;
+  while((!(((*SPIdata1) & ((int)pow(2,CLAW_COLLIDE_BIT))))) && ((!(((*SPIdata1) & ((int)pow(2,LIFT_BOT_BIT))))))) {
+    liftStepper.move(-5);
+    liftPosition-=5;
+    delay(5);
   }
 }
 
@@ -172,11 +172,13 @@ void arm::lowerClaw(void) {
 */
 void arm::homeClaw(void) {
   digitalWrite(LIFT_DIR,DOWN);
-  while((*SPIdata1 & ((int)pow(2,LIFT_BOT_BIT)) == 0)) {
+    while(!(((*SPIdata1) & ((int)pow(2,LIFT_BOT_BIT))))) {
     analogWrite(LIFT_STEP,255);
+
   }
   analogWrite(LIFT_STEP,LOW);
   liftPosition = 0;
+  moveLift(LIFT_TOP_POSITION);
 }
 
 
@@ -201,6 +203,7 @@ void arm::closeClaw(){
 */
 void arm::extendSlider(void) {
   moveSlider(SLIDER_FRONT_POSITION);
+  sliderPosition = SLIDER_FRONT_POSITION;
 }
 
 
@@ -209,7 +212,7 @@ void arm::extendSlider(void) {
 */
 void arm::homeSlider(void){
   digitalWrite(SLIDER_DIR,BACKWARDS);
-  while((*SPIdata1 & ((int)pow(2,SLIDER_BACK_BIT))) == 0) {
+  while(!(((*SPIdata1) & ((int)pow(2,SLIDER_BACK_BIT))))){
     analogWrite(SLIDER_STEP,255);
   }
   analogWrite(SLIDER_STEP,0);
@@ -221,10 +224,12 @@ void arm::homeSlider(void){
 * Retracts the slider until it collides with a pole or comes home
 */
 void arm::retractSlider(void){
-  while(((*SPIdata1 & (int)pow(2,HOOK_COLLIDE_BIT)) == 0) || ((*SPIdata1 & (int)pow(2,SLIDER_BACK_BIT)) == 0)) {
-    sliderStepper.move(-1);
-    sliderPosition--;
+  while((!(((*SPIdata1) & ((int)pow(2,SLIDER_BACK_BIT))))) && (!(((*SPIdata1) & ((int)pow(2,HOOK_COLLIDE_BIT)))))) {
+    sliderStepper.move(5);
+    sliderPosition+=5;
+    delay(5);
   }
+  analogWrite(SLIDER_STEP,0);
 }
 
 
@@ -232,14 +237,13 @@ void arm::retractSlider(void){
 * Rotates the arm to it's home position.
 * Parameters: direction: true for CW / false for CCW
 */
-void arm::homeRotateArm(bool direction){
-  if(direction) {digitalWrite(ARM_DIR,CW);}
-   else {digitalWrite(ARM_DIR,CCW);}
-
-   while((*SPIdata1 & ((int)pow(2,ARM_HOME_BIT)) == 0)) {
+void arm::homeRotateArm(void){
+   digitalWrite(ARM_DIR,CCW);
+   while(!(((*SPIdata1) & (ARM_HOME_BIT)))) {
      analogWrite(ARM_STEP,255);
    }
    analogWrite(ARM_STEP,0);
+   armStepper.move(720);
    armPosition = 0;
 }
 
@@ -248,8 +252,22 @@ void arm::homeRotateArm(bool direction){
 * Rotates the arm until it either collides with a pole or reaches home
 */
 void arm::poleRotateArm(void) {
-  while(((*SPIdata1 & (int)pow(2,ARM_COLLIDE_BIT)) == 0) || ((*SPIdata1 & (int)pow(2,ARM_HOME_BIT)) == 0)) {
-    armStepper.move(1);
-    armPosition++;
+  //TODO CHECK POLARITY
+  while(!((*SPIdata1) & (ARM_HOME_BIT))) {
+    armStepper.move(-5);
+    armPosition-=5;
+    delay(5);
   }
+}
+
+int arm::getLiftPosition(void) {
+  return liftPosition;
+}
+
+int arm::getSliderPosition(void) {
+  return sliderPosition;
+}
+
+int arm::getArmPosition(void) {
+  return armPosition;
 }
