@@ -1,10 +1,12 @@
--IC:\Users\andyp\OneDrive\Documents\PlatformIO\Projects\253 Robot\include
--IC:\Users\andyp\OneDrive\Documents\PlatformIO\Projects\253 Robot\src
+-IC:\Users\andyp\OneDrive\Documents\PlatformIO\Projects\253 Robot 3.5\include
+-IC:\Users\andyp\OneDrive\Documents\PlatformIO\Projects\253 Robot 3.5\src
 -IC:\Users\andyp\.platformio\packages\framework-arduinoteensy\libraries\Servo
--IC:\Users\andyp\OneDrive\Documents\PlatformIO\Projects\253 Robot\lib\StepperDriver-master\src
+-IC:\Users\andyp\OneDrive\Documents\PlatformIO\Projects\253 Robot 3.5\lib\SparkFun_Line_Follower_Array_Arduino_Library-master\src
+-IC:\Users\andyp\.platformio\packages\framework-arduinoteensy\libraries\Wire
+-IC:\Users\andyp\.platformio\packages\framework-arduinoteensy\libraries\Wire\utility
+-IC:\Users\andyp\OneDrive\Documents\PlatformIO\Projects\253 Robot 3.5\lib\StepperDriver-master\src
 -IC:\Users\andyp\.platformio\packages\framework-arduinoteensy\libraries\SPI
 -IC:\Users\andyp\.platformio\packages\framework-arduinoteensy\cores\teensy3
--IC:\Users\andyp\OneDrive\Documents\PlatformIO\Projects\253 Robot\lib\SparkFun_Line_Follower_Array_Arduino_Library-master\src
 -IC:\Users\andyp\.platformio\lib\Adafruit GFX Library_ID13
 -IC:\Users\andyp\.platformio\lib\Adafruit SSD1306_ID135
 -IC:\Users\andyp\.platformio\packages\framework-arduinoteensy\libraries\ADC
@@ -98,8 +100,6 @@
 -IC:\Users\andyp\.platformio\packages\framework-arduinoteensy\libraries\UTFT
 -IC:\Users\andyp\.platformio\packages\framework-arduinoteensy\libraries\VirtualWire
 -IC:\Users\andyp\.platformio\packages\framework-arduinoteensy\libraries\WS2812Serial
--IC:\Users\andyp\.platformio\packages\framework-arduinoteensy\libraries\Wire
--IC:\Users\andyp\.platformio\packages\framework-arduinoteensy\libraries\Wire\utility
 -IC:\Users\andyp\.platformio\packages\framework-arduinoteensy\libraries\XBee
 -IC:\Users\andyp\.platformio\packages\framework-arduinoteensy\libraries\XPT2046_Touchscreen
 -IC:\Users\andyp\.platformio\packages\framework-arduinoteensy\libraries\i2c_t3
@@ -114,10 +114,10 @@
 -IC:\Users\andyp\.platformio\packages\toolchain-gccarmnoneeabi@1.50401.0\lib\gcc\arm-none-eabi\5.4.1\include-fixed
 -IC:\Users\andyp\.platformio\packages\tool-unity
 -DPLATFORMIO=40000
--D__MK66FX1M0__
--DTEENSY36
+-D__MK64FX512__
+-DTEENSY35
 -DUSB_SERIAL
 -DARDUINO=10805
 -DTEENSYDUINO=145
--DF_CPU=180000000L
+-DF_CPU=120000000L
 -DLAYOUT_US_ENGLISH

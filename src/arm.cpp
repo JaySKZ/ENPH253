@@ -35,8 +35,8 @@ arm::arm(uint8_t *SPI1, uint8_t *SPI2) {
   clawOpenServo.attach(CLAW_OPEN_PIN);
   clawRotateServo.attach(CLAW_ROTATE_PIN);
   dispenserServo.attach(DISPENSE_PIN);
-  sliderStepper.begin(300,1);
-  armStepper.begin(300,1);
+  sliderStepper.begin(150,1);
+  armStepper.begin(150,1);
   liftStepper.begin(300,1);
 }
 
@@ -172,9 +172,12 @@ void arm::lowerClaw(void) {
 */
 void arm::homeClaw(void) {
   digitalWrite(LIFT_DIR,DOWN);
-    while(!(((*SPIdata1) & ((int)pow(2,LIFT_BOT_BIT))))) {
-    analogWrite(LIFT_STEP,255);
-
+    //while(!(((*SPIdata1) & ((int)pow(2,LIFT_BOT_BIT))))) {
+    while(true) {
+      digitalWrite(SLIDER_STEP,HIGH);
+      delay(3);
+      digitalWrite(SLIDER_STEP,LOW);
+      delay(3);
   }
   analogWrite(LIFT_STEP,LOW);
   liftPosition = 0;
@@ -240,10 +243,11 @@ void arm::retractSlider(void){
 void arm::homeRotateArm(void){
    digitalWrite(ARM_DIR,CCW);
    while(!(((*SPIdata1) & (ARM_HOME_BIT)))) {
-     analogWrite(ARM_STEP,255);
+     analogWrite(ARM_STEP,127);
    }
    analogWrite(ARM_STEP,0);
-   armStepper.move(720);
+   delay(500);
+   armStepper.move(300);
    armPosition = 0;
 }
 

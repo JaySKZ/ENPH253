@@ -5,14 +5,22 @@
 class movement
 {
     public:
-    movement(int *stonesBehind);
+    movement(int *stonesBehind, boolean *rightSide);
     void drive(void);
 
 
     private:
-    void pidDrive(void);
-    void turnAround(void);
-    void checkSonars(void);
-    void alignGauntlet(void);
-    void killDriveMotors(void);
+    boolean intersection(int element);
+    void turnLeft();
+    void turnRight();
+    int intersectionCount;
+    uint8_t position;
+    int motorSpeed;
+    uint8_t rawValue;
+    bool exists;
+    int error;
+    int lastError;
+    int leftMotorSpeed;
+    int rightMotorSpeed;
+
 };

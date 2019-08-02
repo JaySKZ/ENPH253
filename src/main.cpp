@@ -1,8 +1,8 @@
 #include <Arduino.h>
+#include <constants.h>
 #include <movement.h>
 #include <arm.h>
 #include <SPI.h> //Serial communication
-#include <constants.h>
 
 //State Variables
 IntervalTimer myTimer;
@@ -11,16 +11,25 @@ uint8_t SPIdata2;
 enum State {Drive,Collection,Dispense,Done};
 State state;
 int stonesBehind;
+int count;
+boolean rightSide = false;
+
 //Objects
 arm robotarm (&SPIdata1, &SPIdata2);
-movement robotmovement(&stonesBehind);
+
+movement robotmovement(&stonesBehind, &rightSide);
 //Function Declarations
 void updateSPI();
 void initializePins();
 
 void setup() {
+  count = 0;
   state = Drive;
   stonesBehind = 0;
+  if(digitalRead(constants::SIDE_SWITCH) == HIGH) {
+    rightSide = true;
+  }
+
   //Initiate Processes
   Serial.begin(9600);
 
@@ -29,48 +38,24 @@ void setup() {
   pinMode(constants::LATCH, OUTPUT);
   digitalWrite(constants::LATCH, HIGH);
   myTimer.begin(updateSPI, constants::SPI_TIMING);
-
-  //robotarm.homeArm();
   initializePins();
+  
 
-  robotarm.collectStone(1);
+  robotarm.homeClaw();
+
 }
 
 void loop() {
-  /*
-  robotarm.homeClaw();
-  Serial.println(robotarm.getLiftPosition());
-  robotarm.moveLift(400);
-  Serial.println(robotarm.getLiftPosition());
-  delay(2000);
-  */
-  /*
-  Serial.printf("LIFT POSITION: ");
-  Serial.println(robotarm.getLiftPosition());
-  Serial.printf("ARM POSITION: ");
-  Serial.println(robotarm.getArmPosition());
-  Serial.printf("SLIDER POSITION: ");
-  Serial.println(robotarm.getSliderPosition());
-  delay(2000);
-  */
-  /*
-  Serial.printf("DATA1: ");
-  Serial.println(SPIdata1);
-  Serial.printf("\n");
-  Serial.printf("DATA2: ");
-  Serial.println(SPIdata2);
-  Serial.printf("\n");
+  Serial.println(count);
+  Serial.println(SPIdata2,BIN);
+  Serial.println(SPIdata1,BIN);
+  count++;
   delay(1000);
-*/
-
-
-
-
 /*
   switch(state) {
     case Drive:
       while(stonesBehind != constants::DESIRED_STONES) {
-      //drive();
+      //robotmovement.drive();
     }
       if(stonesBehind == constants::DESIRED_STONES) {
         state = Collection;
@@ -79,14 +64,21 @@ void loop() {
 
     case Collection:
       robotarm.collectStone(constants::DESIRED_STONES-stonesBehind);
-    //  drive();
+      if(side == Left) {
+    //  robotmovement.turnAroundLeft();
+  }
+    else {
+        robotmovement.turnAroundRight();
+  }
+    //  robotmovement.drive();
       if(stonesBehind == 0) {
         state = Dispense;
       }
       break;
 
     case Dispense:
-    //  drive();
+    //  robotmovement.drive();
+    //  robotmovement.alignGauntlet();
       robotarm.dispenseStones();
       break;
 
@@ -103,7 +95,6 @@ void loop() {
 * Updates the digital data from the robots limit switches
 */
 void updateSPI() {
-
   noInterrupts();
 
   digitalWrite(constants::LATCH,LOW);
@@ -113,7 +104,6 @@ void updateSPI() {
   SPIdata1 = SPI.transfer(0);
 
   interrupts();
-
 }
 
 void initializePins() {
@@ -126,4 +116,8 @@ void initializePins() {
   digitalWrite(constants::LIFT_STEP,LOW);
   digitalWrite(constants::SLIDER_STEP,LOW);
   digitalWrite(constants::ARM_STEP,LOW);
+  analogWrite(constants::LF_MOTOR,0);
+  analogWrite(constants::LR_MOTOR,0);
+  analogWrite(constants::RF_MOTOR,0);
+  analogWrite(constants::RR_MOTOR,0);
 }
