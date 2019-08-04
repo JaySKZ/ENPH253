@@ -1,7 +1,6 @@
 #include <arm.h>
 #include <Arduino.h>
 #include <constants.h>
-#include <A4988.h>
 #include <Servo.h>
 
 /*
@@ -14,9 +13,6 @@ Arm.cpp contains all functions related to moving the arm including collection, d
 using namespace constants;
 
 //Motor Objects
-A4988 sliderStepper(200, SLIDER_DIR, SLIDER_STEP);
-A4988 armStepper(200, ARM_DIR, ARM_STEP);
-A4988 liftStepper(200, LIFT_DIR, LIFT_STEP);
 Servo clawOpenServo;
 Servo clawRotateServo;
 Servo dispenserServo;
@@ -35,9 +31,6 @@ arm::arm(uint8_t *SPI1, uint8_t *SPI2) {
   clawOpenServo.attach(CLAW_OPEN_PIN);
   clawRotateServo.attach(CLAW_ROTATE_PIN);
   dispenserServo.attach(DISPENSE_PIN);
-  sliderStepper.begin(150,1);
-  armStepper.begin(150,1);
-  liftStepper.begin(300,1);
 }
 
 
@@ -66,7 +59,19 @@ void arm::extendArm(void) {
 * Parameters: position (0- idk)
 */
 void arm::moveLift(int position) {
-  liftStepper.move(position - liftPosition);
+  if(position > liftPosition) {
+    digitalWrite(LIFT_DIR,UP);
+  }
+  else {
+    digitalWrite(LIFT_DIR,DOWN);
+  }
+  for(int i = 0; i < (position - liftPosition); i++) {
+    digitalWrite(LIFT_STEP,HIGH);
+    delayMicroseconds(800);
+    digitalWrite(LIFT_STEP,LOW);
+    delayMicroseconds(800);
+  }
+
   liftPosition = position;
 }
 
@@ -76,7 +81,21 @@ void arm::moveLift(int position) {
 * Parameters: position (0-idk)
 */
 void arm::moveSlider(int position) {
-  sliderStepper.move(position - sliderPosition);
+  if(position > sliderPosition) {
+    digitalWrite(SLIDER_DIR,FORWARDS);
+  }
+  else {
+    digitalWrite(SLIDER_DIR,BACKWARDS);
+  }
+  for(int i = 0; i < (position - sliderPosition); i++) {
+    digitalWrite(SLIDER_STEP,HIGH);
+    delay(1);
+    digitalWrite(SLIDER_STEP,LOW);
+    delay(1);
+  }
+
+  liftPosition = position;
+
   sliderPosition = position;
 }
 
@@ -86,7 +105,19 @@ void arm::moveSlider(int position) {
 * Parameters: position (-idk,idk)
 */
 void arm::moveArm(int position) {
-  armStepper.move(position - armPosition);
+  if(position > armPosition) {
+    digitalWrite(ARM_DIR,CW);
+  }
+  else {
+    digitalWrite(ARM_DIR,CCW);
+  }
+  for(int i = 0; i < (position - armPosition); i++) {
+    digitalWrite(ARM_STEP,HIGH);
+    delay(4);
+    digitalWrite(ARM_STEP,LOW);
+    delay(4);
+  }
+
   armPosition = position;
 }
 
@@ -95,7 +126,7 @@ void arm::moveArm(int position) {
 * Dispenses all the stones into the gauntlet once already lined up
 */
 void arm::dispenseStones(void) {
-  dispenserServo.write(DISPENSER_POSITION);
+  digitalWrite(DISPENSER,HIGH);
 }
 
 
@@ -106,11 +137,12 @@ void arm::dispenseStones(void) {
 void arm::collectStone(int stoneNumber) {
   homeArm();
   delay(1000);
-  moveArm(-180);
   extendSlider();
   poleRotateArm();
   retractSlider();
+  //openClaw();
   //lowerClaw();
+  //closeClaw();
 }
 
 
@@ -122,23 +154,23 @@ void arm::storeStone(int stoneNumber) {
   homeArm();
   switch(stoneNumber){
     case 0:
-          armStepper.move(ARM_STONE0);
-          sliderStepper.move(SLIDER_STONE0);
+          moveArm(ARM_STONE0);
+          moveSlider(SLIDER_STONE0);
           clawRotateServo.write(CLAW_STONE0);
           break;
     case 1:
-          armStepper.move(ARM_STONE1);
-          sliderStepper.move(SLIDER_STONE1);
+          moveArm(ARM_STONE1);
+          moveSlider(SLIDER_STONE1);
           clawRotateServo.write(CLAW_STONE1);
           break;
     case 2:
-          armStepper.move(ARM_STONE2);
-          sliderStepper.move(SLIDER_STONE2);
+          moveArm(ARM_STONE2);
+          moveSlider(SLIDER_STONE2);
           clawRotateServo.write(CLAW_STONE2);
           break;
     case 3:
-          armStepper.move(ARM_STONE3);
-          sliderStepper.move(SLIDER_STONE3);
+          moveArm(ARM_STONE3);
+          moveSlider(SLIDER_STONE3);
           clawRotateServo.write(CLAW_STONE3);
           break;
   }
@@ -160,9 +192,9 @@ void arm::raiseClaw(void) {
 */
 void arm::lowerClaw(void) {
   while((!(((*SPIdata1) & ((int)pow(2,CLAW_COLLIDE_BIT))))) && ((!(((*SPIdata1) & ((int)pow(2,LIFT_BOT_BIT))))))) {
-    liftStepper.move(-5);
+    moveLift(liftPosition-5);
     liftPosition-=5;
-    delay(5);
+    delay(1);
   }
 }
 
@@ -172,15 +204,15 @@ void arm::lowerClaw(void) {
 */
 void arm::homeClaw(void) {
   digitalWrite(LIFT_DIR,DOWN);
-    //while(!(((*SPIdata1) & ((int)pow(2,LIFT_BOT_BIT))))) {
-    while(true) {
-      digitalWrite(SLIDER_STEP,HIGH);
-      delay(3);
-      digitalWrite(SLIDER_STEP,LOW);
-      delay(3);
+    while(!(((*SPIdata1) & ((int)pow(2,LIFT_BOT_BIT))))) {
+      digitalWrite(LIFT_STEP,HIGH);
+      delayMicroseconds(800);
+      digitalWrite(LIFT_STEP,LOW);
+      delayMicroseconds(800);
   }
-  analogWrite(LIFT_STEP,LOW);
+  digitalWrite(LIFT_STEP,LOW);
   liftPosition = 0;
+  delay(100);
   moveLift(LIFT_TOP_POSITION);
 }
 
@@ -216,9 +248,12 @@ void arm::extendSlider(void) {
 void arm::homeSlider(void){
   digitalWrite(SLIDER_DIR,BACKWARDS);
   while(!(((*SPIdata1) & ((int)pow(2,SLIDER_BACK_BIT))))){
-    analogWrite(SLIDER_STEP,255);
+    digitalWrite(SLIDER_STEP,HIGH);
+    delay(1);
+    digitalWrite(SLIDER_STEP,LOW);
+    delay(1);
   }
-  analogWrite(SLIDER_STEP,0);
+  digitalWrite(SLIDER_STEP,LOW);
   sliderPosition = 0;
 }
 
@@ -228,11 +263,10 @@ void arm::homeSlider(void){
 */
 void arm::retractSlider(void){
   while((!(((*SPIdata1) & ((int)pow(2,SLIDER_BACK_BIT))))) && (!(((*SPIdata1) & ((int)pow(2,HOOK_COLLIDE_BIT)))))) {
-    sliderStepper.move(5);
+    moveSlider(sliderPosition + 5);
     sliderPosition+=5;
-    delay(5);
+    delay(1);
   }
-  analogWrite(SLIDER_STEP,0);
 }
 
 
@@ -243,12 +277,16 @@ void arm::retractSlider(void){
 void arm::homeRotateArm(void){
    digitalWrite(ARM_DIR,CCW);
    while(!(((*SPIdata1) & (ARM_HOME_BIT)))) {
-     analogWrite(ARM_STEP,127);
+     digitalWrite(ARM_STEP,HIGH);
+     delay(2);
+     digitalWrite(ARM_STEP,LOW);
+     delay(2);
    }
-   analogWrite(ARM_STEP,0);
+   digitalWrite(ARM_STEP,LOW);
    delay(500);
-   armStepper.move(300);
+   moveArm(ARM_FRONT_POSITION);
    armPosition = 0;
+
 }
 
 
@@ -256,11 +294,10 @@ void arm::homeRotateArm(void){
 * Rotates the arm until it either collides with a pole or reaches home
 */
 void arm::poleRotateArm(void) {
-  //TODO CHECK POLARITY
   while(!((*SPIdata1) & (ARM_HOME_BIT))) {
-    armStepper.move(-5);
+    moveArm(armPosition - 5);
     armPosition-=5;
-    delay(5);
+    delay(4);
   }
 }
 

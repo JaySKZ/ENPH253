@@ -38,11 +38,12 @@ void setup() {
   pinMode(constants::LATCH, OUTPUT);
   digitalWrite(constants::LATCH, HIGH);
   myTimer.begin(updateSPI, constants::SPI_TIMING);
+
+
   initializePins();
-  
 
-  robotarm.homeClaw();
-
+  //This is the command that i've been changing for testing bullshit.
+  robotarm.homeRotateArm();
 }
 
 void loop() {
@@ -110,12 +111,17 @@ void initializePins() {
   pinMode(constants::LIFT_DIR,OUTPUT);
   pinMode(constants::SLIDER_DIR,OUTPUT);
   pinMode(constants::ARM_DIR,OUTPUT);
+  pinMode(constants::LIFT_STEP,OUTPUT);
+  pinMode(constants::SLIDER_STEP,OUTPUT);
+  pinMode(constants::ARM_STEP,OUTPUT);
+  pinMode(constants::DISPENSER,OUTPUT);
   digitalWrite(constants::LIFT_DIR,LOW);
   digitalWrite(constants::SLIDER_DIR,LOW);
   digitalWrite(constants::ARM_DIR,LOW);
   digitalWrite(constants::LIFT_STEP,LOW);
   digitalWrite(constants::SLIDER_STEP,LOW);
   digitalWrite(constants::ARM_STEP,LOW);
+  digitalWrite(constants::DISPENSER,LOW);
   analogWrite(constants::LF_MOTOR,0);
   analogWrite(constants::LR_MOTOR,0);
   analogWrite(constants::RF_MOTOR,0);
