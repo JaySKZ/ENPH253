@@ -15,7 +15,6 @@ using namespace constants;
 //Motor Objects
 Servo clawOpenServo;
 Servo clawRotateServo;
-Servo dispenserServo;
 
 
 /*
@@ -30,7 +29,8 @@ arm::arm(uint8_t *SPI1, uint8_t *SPI2) {
 
   clawOpenServo.attach(CLAW_OPEN_PIN);
   clawRotateServo.attach(CLAW_ROTATE_PIN);
-  dispenserServo.attach(DISPENSE_PIN);
+  clawOpenServo.write(CLAW_OPEN_DEG);
+  clawRotateServo.write(45);
 }
 
 
@@ -40,8 +40,8 @@ arm::arm(uint8_t *SPI1, uint8_t *SPI2) {
 */
 void arm::homeArm(void) {
   homeSlider();
-  homeRotateArm();
   homeClaw();
+  homeRotateArm();
 }
 
 
@@ -53,19 +53,37 @@ void arm::extendArm(void) {
   extendSlider();
 }
 
+/*
+* Sleeps all the stepper motors of the arm
+*/
+void arm::sleepArm(void) {
+  digitalWrite(ARM_SLEEP,LOW);
+  digitalWrite(SLIDER_SLEEP,LOW);
+  digitalWrite(LIFT_SLEEP,LOW);
+}
+
+/*
+* Wakes up all the stepper motors of the arm
+*/
+void arm::wakeupArm(void) {
+  digitalWrite(ARM_SLEEP,HIGH);
+  digitalWrite(SLIDER_SLEEP,HIGH);
+  digitalWrite(LIFT_SLEEP,HIGH);
+}
+
 
 /*
 * Moves the lift to a desired position
 * Parameters: position (0- idk)
 */
 void arm::moveLift(int position) {
-  if(position > liftPosition) {
+  if(position < liftPosition) {
     digitalWrite(LIFT_DIR,UP);
   }
   else {
     digitalWrite(LIFT_DIR,DOWN);
   }
-  for(int i = 0; i < (position - liftPosition); i++) {
+  for(int i = 0; i < abs(position - liftPosition); i++) {
     digitalWrite(LIFT_STEP,HIGH);
     delayMicroseconds(800);
     digitalWrite(LIFT_STEP,LOW);
@@ -87,7 +105,7 @@ void arm::moveSlider(int position) {
   else {
     digitalWrite(SLIDER_DIR,BACKWARDS);
   }
-  for(int i = 0; i < (position - sliderPosition); i++) {
+  for(int i = 0; i < abs(position - sliderPosition); i++) {
     digitalWrite(SLIDER_STEP,HIGH);
     delay(1);
     digitalWrite(SLIDER_STEP,LOW);
@@ -111,11 +129,11 @@ void arm::moveArm(int position) {
   else {
     digitalWrite(ARM_DIR,CCW);
   }
-  for(int i = 0; i < (position - armPosition); i++) {
+  for(int i = 0; i < abs(position - armPosition); i++) {
     digitalWrite(ARM_STEP,HIGH);
-    delay(4);
+    delay(2);
     digitalWrite(ARM_STEP,LOW);
-    delay(4);
+    delay(2);
   }
 
   armPosition = position;
@@ -136,22 +154,27 @@ void arm::dispenseStones(void) {
 */
 void arm::collectStone(int stoneNumber) {
   homeArm();
-  delay(1000);
   extendSlider();
   poleRotateArm();
   retractSlider();
-  //openClaw();
-  //lowerClaw();
-  //closeClaw();
+  openClaw();
+  clawRotateServo.write(CLAW_COLLECT_DEG);
+  lowerClaw();
+  delay(400);
+  closeClaw();
+  delay(400);
+  moveLift(LIFT_TOP_POSITION+200);
+  extendSlider();
+  moveArm(ARM_FRONT_POSITION);
+  homeSlider();
 }
 
 
 /*
-* Homes arm then stores stone from claw to a spot on the flipper.
+* Stores stone from claw to a spot on the flipper.
 * Parameters: stoneNumber is the number of stones already stored (0-3)
 */
 void arm::storeStone(int stoneNumber) {
-  homeArm();
   switch(stoneNumber){
     case 0:
           moveArm(ARM_STONE0);
@@ -191,10 +214,13 @@ void arm::raiseClaw(void) {
 * Lowers the claw until it hits a pole or hits the bottom
 */
 void arm::lowerClaw(void) {
+  digitalWrite(LIFT_DIR,DOWN);
   while((!(((*SPIdata1) & ((int)pow(2,CLAW_COLLIDE_BIT))))) && ((!(((*SPIdata1) & ((int)pow(2,LIFT_BOT_BIT))))))) {
-    moveLift(liftPosition-5);
-    liftPosition-=5;
-    delay(1);
+    digitalWrite(LIFT_STEP,HIGH);
+    delayMicroseconds(2000);
+    digitalWrite(LIFT_STEP,LOW);
+    delayMicroseconds(2000);
+    liftPosition += 1;
   }
 }
 
@@ -203,14 +229,14 @@ void arm::lowerClaw(void) {
 *  Lowers the claw to the lowest point
 */
 void arm::homeClaw(void) {
+  clawRotateServo.write(CLAW_ROTATE_HOME);
   digitalWrite(LIFT_DIR,DOWN);
-    while(!(((*SPIdata1) & ((int)pow(2,LIFT_BOT_BIT))))) {
+  while(!(((*SPIdata1) & ((int)pow(2,LIFT_BOT_BIT))))) {
       digitalWrite(LIFT_STEP,HIGH);
       delayMicroseconds(800);
       digitalWrite(LIFT_STEP,LOW);
       delayMicroseconds(800);
   }
-  digitalWrite(LIFT_STEP,LOW);
   liftPosition = 0;
   delay(100);
   moveLift(LIFT_TOP_POSITION);
@@ -262,10 +288,13 @@ void arm::homeSlider(void){
 * Retracts the slider until it collides with a pole or comes home
 */
 void arm::retractSlider(void){
+  digitalWrite(SLIDER_DIR,BACKWARDS);
   while((!(((*SPIdata1) & ((int)pow(2,SLIDER_BACK_BIT))))) && (!(((*SPIdata1) & ((int)pow(2,HOOK_COLLIDE_BIT)))))) {
-    moveSlider(sliderPosition + 5);
-    sliderPosition+=5;
+    digitalWrite(SLIDER_STEP,HIGH);
     delay(1);
+    digitalWrite(SLIDER_STEP,LOW);
+    delay(1);
+    sliderPosition--;
   }
 }
 
@@ -284,9 +313,8 @@ void arm::homeRotateArm(void){
    }
    digitalWrite(ARM_STEP,LOW);
    delay(500);
-   moveArm(ARM_FRONT_POSITION);
    armPosition = 0;
-
+   moveArm(ARM_FRONT_POSITION);
 }
 
 
@@ -294,10 +322,13 @@ void arm::homeRotateArm(void){
 * Rotates the arm until it either collides with a pole or reaches home
 */
 void arm::poleRotateArm(void) {
+  digitalWrite(ARM_DIR,CCW);
   while(!((*SPIdata1) & (ARM_HOME_BIT))) {
-    moveArm(armPosition - 5);
-    armPosition-=5;
-    delay(4);
+    digitalWrite(ARM_STEP,HIGH);
+    delay(2);
+    digitalWrite(ARM_STEP,LOW);
+    delay(2);
+    armPosition -= 1;
   }
 }
 

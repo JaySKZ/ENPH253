@@ -9,6 +9,8 @@ class arm
 
     void homeArm(void);
     void extendArm(void);
+    void sleepArm(void);
+    void wakeupArm(void);
 
     void moveSlider(int position);
     void moveLift(int position);

@@ -41,9 +41,26 @@ void setup() {
 
 
   initializePins();
+  robotarm.wakeupArm();
+  digitalWrite(constants::SLIDER_SLEEP,LOW);
+  digitalWrite(constants::ARM_SLEEP,LOW);
+  robotarm.homeClaw();
+  delay(1000);
+  robotarm.moveLift(constants::LIFT_TOP_POSITION/2);
+  delay(1000);
+  robotarm.moveLift(constants::LIFT_TOP_POSITION/2 + 150);
+  delay(1000);
+  robotarm.moveLift(constants::LIFT_TOP_POSITION/2 - 150);
+  delay(1000);
+  robotarm.moveLift(constants::LIFT_TOP_POSITION/2 + 150);
+  delay(1000);
+  robotarm.moveLift(constants::LIFT_TOP_POSITION/2 - 150);
+  delay(1000);
+  robotarm.moveLift(constants::LIFT_TOP_POSITION/2 + 150);
+  delay(1000);
+
 
   //This is the command that i've been changing for testing bullshit.
-  robotarm.homeRotateArm();
 }
 
 void loop() {
@@ -115,6 +132,11 @@ void initializePins() {
   pinMode(constants::SLIDER_STEP,OUTPUT);
   pinMode(constants::ARM_STEP,OUTPUT);
   pinMode(constants::DISPENSER,OUTPUT);
+  pinMode(constants::ARM_SLEEP,OUTPUT);
+  pinMode(constants::SLIDER_SLEEP,OUTPUT);
+  pinMode(constants::LIFT_SLEEP,OUTPUT);
+  pinMode(constants::CLAW_OPEN_PIN,OUTPUT);
+  pinMode(constants::CLAW_ROTATE_PIN,OUTPUT);
   digitalWrite(constants::LIFT_DIR,LOW);
   digitalWrite(constants::SLIDER_DIR,LOW);
   digitalWrite(constants::ARM_DIR,LOW);

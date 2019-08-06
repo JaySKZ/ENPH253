@@ -4,17 +4,17 @@
 namespace constants {
 
   //Pins
-  const int CLAW_OPEN_PIN = 1000;
-  const int CLAW_ROTATE_PIN = 1000;
+  const int CLAW_OPEN_PIN = 6;
+  const int CLAW_ROTATE_PIN = 4;
   const int SLIDER_STEP = 8; //GOOD
   const int SLIDER_DIR = 7; //GOOD
-  const int SLIDER_SLEEP = 1000;
+  const int SLIDER_SLEEP = 9;
   const int LIFT_STEP = 30; //GOOD
   const int LIFT_DIR = 29; //GOOD
-  const int LIFT_SLEEP = 1000;
+  const int LIFT_SLEEP = 26;
   const int ARM_STEP = 3; //GOOD
   const int ARM_DIR = 2; //GOOD
-  const int ARM_SLEEP = 1000;
+  const int ARM_SLEEP = 1;
   const int DISPENSE_PIN = 1000;
   const int LATCH = 5; //GOOD
   const int LF_MOTOR = 35; //GOOD
@@ -28,17 +28,17 @@ namespace constants {
   const int LIFT_BOT_BIT = 7; //GOOD
   const int SLIDER_BACK_BIT = 2; //GOOD
   const int ARM_HOME_BIT = 58; //GOOD
-  const int CLAW_COLLIDE_BIT = 5;
+  const int CLAW_COLLIDE_BIT = 0;
   const int HOOK_COLLIDE_BIT = 6; //GOOD
-  const int ARM_COLLIDE_BIT = 58; //GOOD AND 4 5 6
+  const int ARM_COLLIDE_BIT = 58; //GOOD AND 1 3 4 5
 
   //Directions
-  #define UP HIGH //GOOD
-  #define DOWN LOW //GOOD
+  #define UP LOW //GOOD
+  #define DOWN HIGH //GOOD
   #define FORWARDS HIGH //GOOD
   #define BACKWARDS LOW //GOOD
-  #define CW HIGH //GOOD
-  #define CCW LOW //GOOD
+  #define CW LOW //GOOD
+  #define CCW HIGH //GOOD
 
   //Stone storing distances
   const int ARM_STONE0 = 0;
@@ -53,12 +53,14 @@ namespace constants {
   const int CLAW_STONE1 = 0;
   const int CLAW_STONE2 = 0;
   const int CLAW_STONE3 = 0;
-  const int CLAW_OPEN_DEG = 0;
-  const int CLAW_CLOSE_DEG = 0;
+  const int CLAW_OPEN_DEG = 80;
+  const int CLAW_CLOSE_DEG = 105;
+  const int CLAW_COLLECT_DEG = 139;
+  const int CLAW_ROTATE_HOME = 30;
 
   //End of belt distances
   const int SLIDER_FRONT_POSITION = 860; //GOOD
-  const int LIFT_TOP_POSITION = 900; //GOOD
+  const int LIFT_TOP_POSITION = -850; //GOOD
   const int ARM_FRONT_POSITION = 700; //GOOD
 
   //Misc
