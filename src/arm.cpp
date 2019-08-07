@@ -77,7 +77,7 @@ void arm::wakeupArm(void) {
 * Parameters: position (0- idk)
 */
 void arm::moveLift(int position) {
-  if(position < liftPosition) {
+  if(position > liftPosition) {
     digitalWrite(LIFT_DIR,UP);
   }
   else {
@@ -154,19 +154,25 @@ void arm::dispenseStones(void) {
 */
 void arm::collectStone(int stoneNumber) {
   homeArm();
+  clawRotateServo.write(CLAW_COLLECT_DEG);
   extendSlider();
   poleRotateArm();
+  Serial.println(armPosition);
   retractSlider();
+  Serial.println(sliderPosition);
   openClaw();
-  clawRotateServo.write(CLAW_COLLECT_DEG);
+  delay(400);
   lowerClaw();
   delay(400);
+  Serial.println(liftPosition);
   closeClaw();
   delay(400);
-  moveLift(LIFT_TOP_POSITION+200);
+  moveLift(LIFT_TOP_POSITION);
   extendSlider();
   moveArm(ARM_FRONT_POSITION);
   homeSlider();
+  clawRotateServo.write(0);
+
 }
 
 
@@ -197,6 +203,8 @@ void arm::storeStone(int stoneNumber) {
           clawRotateServo.write(CLAW_STONE3);
           break;
   }
+  moveLift(150);
+  delay(300);
   openClaw();
 }
 
@@ -217,10 +225,10 @@ void arm::lowerClaw(void) {
   digitalWrite(LIFT_DIR,DOWN);
   while((!(((*SPIdata1) & ((int)pow(2,CLAW_COLLIDE_BIT))))) && ((!(((*SPIdata1) & ((int)pow(2,LIFT_BOT_BIT))))))) {
     digitalWrite(LIFT_STEP,HIGH);
-    delayMicroseconds(2000);
+    delayMicroseconds(800);
     digitalWrite(LIFT_STEP,LOW);
-    delayMicroseconds(2000);
-    liftPosition += 1;
+    delayMicroseconds(800);
+    liftPosition -= 1;
   }
 }
 
@@ -229,6 +237,7 @@ void arm::lowerClaw(void) {
 *  Lowers the claw to the lowest point
 */
 void arm::homeClaw(void) {
+  openClaw();
   clawRotateServo.write(CLAW_ROTATE_HOME);
   digitalWrite(LIFT_DIR,DOWN);
   while(!(((*SPIdata1) & ((int)pow(2,LIFT_BOT_BIT))))) {
@@ -238,8 +247,15 @@ void arm::homeClaw(void) {
       delayMicroseconds(800);
   }
   liftPosition = 0;
-  delay(100);
-  moveLift(LIFT_TOP_POSITION);
+  delay(600);
+  digitalWrite(LIFT_DIR,UP);
+  for(int i = 0; i < LIFT_TOP_POSITION;i++) {
+    digitalWrite(LIFT_STEP,HIGH);
+    delayMicroseconds(800);
+    digitalWrite(LIFT_STEP,LOW);
+    delayMicroseconds(800);
+  }
+  liftPosition = LIFT_TOP_POSITION;
 }
 
 

@@ -30,6 +30,7 @@ void setup() {
     rightSide = true;
   }
 
+
   //Initiate Processes
   Serial.begin(9600);
 
@@ -39,26 +40,11 @@ void setup() {
   digitalWrite(constants::LATCH, HIGH);
   myTimer.begin(updateSPI, constants::SPI_TIMING);
 
-
   initializePins();
-  robotarm.wakeupArm();
-  digitalWrite(constants::SLIDER_SLEEP,LOW);
-  digitalWrite(constants::ARM_SLEEP,LOW);
-  robotarm.homeClaw();
-  delay(1000);
-  robotarm.moveLift(constants::LIFT_TOP_POSITION/2);
-  delay(1000);
-  robotarm.moveLift(constants::LIFT_TOP_POSITION/2 + 150);
-  delay(1000);
-  robotarm.moveLift(constants::LIFT_TOP_POSITION/2 - 150);
-  delay(1000);
-  robotarm.moveLift(constants::LIFT_TOP_POSITION/2 + 150);
-  delay(1000);
-  robotarm.moveLift(constants::LIFT_TOP_POSITION/2 - 150);
-  delay(1000);
-  robotarm.moveLift(constants::LIFT_TOP_POSITION/2 + 150);
-  delay(1000);
+  robotarm.sleepArm();
 
+  delay(4000);
+  robotarm.dispenseStones();
 
   //This is the command that i've been changing for testing bullshit.
 }
@@ -125,6 +111,8 @@ void updateSPI() {
 }
 
 void initializePins() {
+  pinMode(constants::DISPENSER,OUTPUT);
+  digitalWrite(constants::DISPENSER,LOW);
   pinMode(constants::LIFT_DIR,OUTPUT);
   pinMode(constants::SLIDER_DIR,OUTPUT);
   pinMode(constants::ARM_DIR,OUTPUT);

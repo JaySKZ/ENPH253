@@ -7,7 +7,7 @@ namespace constants {
   const int CLAW_OPEN_PIN = 6;
   const int CLAW_ROTATE_PIN = 4;
   const int SLIDER_STEP = 8; //GOOD
-  const int SLIDER_DIR = 7; //GOOD
+  const int SLIDER_DIR = 10; //GOOD
   const int SLIDER_SLEEP = 9;
   const int LIFT_STEP = 30; //GOOD
   const int LIFT_DIR = 29; //GOOD
@@ -22,7 +22,7 @@ namespace constants {
   const int RF_MOTOR = 38;
   const int RR_MOTOR = 37; //GOOD
   const int SIDE_SWITCH = 1000;
-  const int DISPENSER = 1000;
+  const int DISPENSER = 32;
 
   //Byte Order: 0 is farthest right, represents 2^0
   const int LIFT_BOT_BIT = 7; //GOOD
@@ -41,27 +41,27 @@ namespace constants {
   #define CCW HIGH //GOOD
 
   //Stone storing distances
-  const int ARM_STONE0 = 0;
-  const int ARM_STONE1 = 0;
+  const int ARM_STONE0 = 720; //GOOD
+  const int ARM_STONE1 = 1050; //?
   const int ARM_STONE2 = 0;
   const int ARM_STONE3 = 0;
-  const int SLIDER_STONE0 = 0;
-  const int SLIDER_STONE1 = 0;
+  const int SLIDER_STONE0 = 720; //GOOD
+  const int SLIDER_STONE1 = 700; //?
   const int SLIDER_STONE2 = 0;
   const int SLIDER_STONE3 = 0;
-  const int CLAW_STONE0 = 0;
-  const int CLAW_STONE1 = 0;
+  const int CLAW_STONE0 = 0; //GOOD
+  const int CLAW_STONE1 = 0; //?
   const int CLAW_STONE2 = 0;
   const int CLAW_STONE3 = 0;
-  const int CLAW_OPEN_DEG = 80;
-  const int CLAW_CLOSE_DEG = 105;
-  const int CLAW_COLLECT_DEG = 139;
-  const int CLAW_ROTATE_HOME = 30;
+  const int CLAW_OPEN_DEG = 75;
+  const int CLAW_CLOSE_DEG = 100;
+  const int CLAW_COLLECT_DEG = 180;
+  const int CLAW_ROTATE_HOME = 90;
 
   //End of belt distances
-  const int SLIDER_FRONT_POSITION = 860; //GOOD
-  const int LIFT_TOP_POSITION = -850; //GOOD
-  const int ARM_FRONT_POSITION = 700; //GOOD
+  const int SLIDER_FRONT_POSITION = 780; //GOOD 860
+  const int LIFT_TOP_POSITION = 850; //GOOD 850
+  const int ARM_FRONT_POSITION = 720; //GOOD 700
 
   //Misc
   const int SPI_TIMING = 1000; //microseconds
